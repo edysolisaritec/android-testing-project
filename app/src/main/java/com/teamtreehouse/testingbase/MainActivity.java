@@ -15,18 +15,20 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+    public class MainActivity extends AppCompatActivity implements MainActivityView{
     LinearLayout linearLayout;
     EditText editText;
     TextView textView;
     Spinner colorSpinner;
     Button launchActivityButton;
+    MainActivityPresenter presenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        presenter = new MainActivityPresenter(this);
         // Initialize Views
         textView = (TextView) findViewById(R.id.textView);
         editText = (EditText) findViewById(R.id.editText);
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onEditorAction(TextView tv, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     String text = tv.getText().toString();
-                    textView.setText(text);
+                    presenter.editTextUpdated(text);
                 }
                 return false;
             }
@@ -54,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
         colorSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int index, long id) {
-                switch (index) {
+                presenter.colorSelected(index);
+            /*    switch (index) {
                     case 0:
                         linearLayout.setBackgroundColor(Color.WHITE);
                         break;
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                     case 3:
                         linearLayout.setBackgroundColor(Color.CYAN);
                         break;
-                }
+                }*/
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {}
@@ -76,9 +79,24 @@ public class MainActivity extends AppCompatActivity {
         launchActivityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, OtherActivity.class);
-                startActivity(intent);
+                presenter.buttomClicked(OtherActivity.class);
             }
         });
+    }
+
+    @Override
+    public void changeTextViewText(String text) {
+        textView.setText(text);
+    }
+
+    @Override
+    public void changeBackgroundColor(int color) {
+        linearLayout.setBackgroundColor(color);
+    }
+
+    @Override
+    public void launchOtherActivity(Class activity) {
+        Intent intent = new Intent(MainActivity.this, activity);
+        startActivity(intent);
     }
 }
